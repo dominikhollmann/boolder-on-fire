@@ -18,15 +18,19 @@
 //   Fonds de carte   -> Périmètre de la forêt domaniale (not a closure, just the forest
 //                        boundary) / Zones interdites de fréquentation (Polygon)
 //   Parkings         -> Parkings accessibles / Parkings fermés (Point)
-//   Routes départementales -> Route ouverte à la circulation / Route barrée (lines, not
-//                        polygon/point — excluded by the geometry filter below regardless)
+//   Routes départementales -> Route ouverte à la circulation / Route barrée (1 Point + 1
+//                        LineString — the only layer whose "closed" side uMap did NOT
+//                        color Red/OrangeRed, confirmed via a one-off debug run against
+//                        every sub-layer; see IS_CLOSED below)
 //   Escalade         -> Zone d'escalade accessible / Zone d'escalade non accessible (Point
 //                        — the actually climbing-relevant one, e.g. closed circuit numbers
 //                        like "91.1" or sector names like "Cul de Chien")
 //   Bivouacs         -> Bivouac accessible / Bivouacs fermés (Point)
-// uMap itself colors every "closed" sub-layer Red or OrangeRed and every "open"/reference
-// one Blue/DarkBlue — CLOSED_COLORS below relies on that existing editorial convention
-// instead of matching on layer names, so it keeps working if the French labels change.
+// uMap colors most "closed" sub-layers Red or OrangeRed and most "open"/reference ones
+// Blue/DarkBlue, but that convention isn't applied consistently (see Route barrée above),
+// so IS_CLOSED below matches on color OR on French closure keywords in the layer's own
+// name (fermé/fermée/fermés/fermées, non accessible, interdit*, barrée/barrées) — the
+// union catches every closed layer seen so far without false-matching any open one.
 //
 // Every closed layer becomes its own category (slugified from its uMap layer name) so
 // js/map.js can render an independent on/off toggle per category — this stays correct
@@ -49,9 +53,15 @@ const MAP_LOCALE = "en";
 const MAP_ID = 1443097;
 const MAP_URL = `${MAP_ORIGIN}/${MAP_LOCALE}/map/foret-de-fontainebleau-zones-interdites_${MAP_ID}`;
 const CLOSED_COLORS = new Set(["Red", "OrangeRed"]);
+const CLOSED_NAME_PATTERN = /ferm|non accessible|interdit|barr/i;
+
+function isClosedLayer(node) {
+  return CLOSED_COLORS.has(node.properties?.color) || CLOSED_NAME_PATTERN.test(node.properties?.name ?? "");
+}
 const KNOWN_CATEGORY_LABELS = {
   "Zones interdites de fréquentation": "Closed area",
   "Parkings fermés": "Parking closed",
+  "Route barrée": "Road closed",
   "Zone d'escalade non accessible": "Climbing zone closed",
   "Bivouacs fermés": "Bivouac closed",
 };
@@ -91,7 +101,7 @@ async function fetchJson(url) {
 // collect only the "closed" sub-layers, keeping each one's name for the popup fallback.
 function collectClosureLayers(nodes, layers = []) {
   for (const node of nodes ?? []) {
-    if (node.id && CLOSED_COLORS.has(node.properties?.color)) {
+    if (node.id && isClosedLayer(node)) {
       layers.push({ id: node.id, name: node.properties?.name ?? null });
     }
     if (Array.isArray(node.layers)) collectClosureLayers(node.layers, layers);
@@ -104,8 +114,8 @@ async function fetchClosureLayers() {
   const layers = collectClosureLayers(mapSettings.properties?.datalayers);
   if (layers.length === 0) {
     throw new Error(
-      `Map ${MAP_ID} has no "closed" (Red/OrangeRed) datalayers — the map's structure may ` +
-        `have changed. Raw properties.datalayers: ${JSON.stringify(mapSettings.properties?.datalayers)}`,
+      `Map ${MAP_ID} has no "closed" datalayers (by color or name) — the map's structure ` +
+        `may have changed. Raw properties.datalayers: ${JSON.stringify(mapSettings.properties?.datalayers)}`,
     );
   }
   return layers;
@@ -128,7 +138,7 @@ async function fetchFeatureCollections() {
   );
 }
 
-const RENDERABLE_GEOMETRY_TYPES = new Set(["Polygon", "MultiPolygon", "Point"]);
+const RENDERABLE_GEOMETRY_TYPES = new Set(["Polygon", "MultiPolygon", "Point", "LineString", "MultiLineString"]);
 
 // Keep only what js/map.js actually renders — drop uMap's internal styling/editor
 // metadata. Individual closure features rarely carry their own name/description in this
@@ -159,7 +169,7 @@ async function main() {
   });
 
   if (features.length === 0) {
-    throw new Error("Fetched uMap data but found zero renderable (polygon/point) features — refusing to overwrite existing data.");
+    throw new Error("Fetched uMap data but found zero renderable (polygon/point/line) features — refusing to overwrite existing data.");
   }
 
   const output = {

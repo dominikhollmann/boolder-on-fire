@@ -20,11 +20,12 @@ inserted below the existing `areas` layer.
 
 - **`mapbox_controller.patch`** — `app/javascript/controllers/mapbox_controller.js`:
   - new `closures` (Boolean) and `closuresSource` (String) values
-  - new `fire-closures` source + three layers (`fire-closures-fill`, `fire-closures-outline`
-    for areas; `fire-closures-points` for point markers, filtered to `Point` geometries) in `addLayers()`
-  - click popup (name, category label, description) in `setupClickEvents()`, for point
-    markers only — not the area fill, so a zone polygon under a point marker doesn't
-    produce two overlapping popups on click
+  - new `fire-closures` source + four layers (`fire-closures-fill`/`fire-closures-outline`
+    for areas; `fire-closures-lines` for line closures like barred roads; `fire-closures-points`
+    for point markers) in `addLayers()`, each filtered to its matching geometry type(s)
+  - click popup (name, category label, description) in `setupClickEvents()`, for lines and
+    point markers only — not the area fill, so a zone polygon under a point marker (or a
+    barred road running through one) doesn't produce two overlapping popups on click
 - **`map_index.patch`** — `app/views/map/index.html.erb`:
   - sets `data-mapbox-closures-value="true"` and `data-mapbox-closures-source-value` to
     the GeoJSON file from this repo (`dominikhollmann/boolder-on-fire`, kept current every

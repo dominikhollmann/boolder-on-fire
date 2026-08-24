@@ -19,12 +19,14 @@ whatever closed layers currently exist on the uMap map (see
 that's:
 
 - **Closed area** — general no-access polygons (red shaded areas)
-- **Climbing zone closed** — closed boulder/climbing areas, e.g. individual circuit numbers or sectors
+- **Climbing zone closed** — closed boulder/climbing areas, e.g. individual circuit numbers or sectors ("Escalade" on the original uMap map)
 - **Parking closed**
+- **Road closed** — a barred road ("Route barrée" on the original map — the only closed
+  layer uMap didn't color red; see [Data pipeline](#data-pipeline) for how it's still detected)
 - **Bivouac closed**
 
-Only point markers (not the area fill) show a click popup — this avoids two overlapping
-popups when a marker sits inside a shaded zone.
+Only line and point features (not the area fill) show a click popup — this avoids two
+overlapping popups when a marker or a barred-road line sits inside a shaded zone.
 
 > ⚠️ **Not an official Boolder service.** This is an independent prototype, not affiliated
 > with boolder.com. Closure data comes from a community uMap map and may be outdated or
@@ -62,9 +64,14 @@ Get a free token at <https://account.mapbox.com/access-tokens/>.
 
 ## Data pipeline
 
-`scripts/sync-closures.mjs` fetches the current closures (both area polygons **and** point
-markers for closed climbing zones/parkings/bivouacs) from the uMap map, trims them down to
-the fields needed for display, and writes `data/fire-closures.geojson`. The
+`scripts/sync-closures.mjs` fetches every closed uMap layer — area polygons, point markers
+(closed climbing zones/parkings/bivouacs), and lines (barred roads) — trims them down to
+the fields needed for display, and writes `data/fire-closures.geojson`. A layer counts as
+"closed" if uMap colored it Red/OrangeRed **or** its name contains a French closure
+keyword (fermé/interdit/barrée/non accessible) — the keyword check exists because uMap
+doesn't apply the red-coloring convention 100% consistently (confirmed by inspecting every
+sub-layer, not just the colored ones: "Route barrée" is closed but has no explicit color).
+The
 [GitHub Action](.github/workflows/sync-closures.yml) runs this script every 6 hours (and
 on manual "Run workflow") and commits changes automatically. The static page loads this
 file on open and re-polls it every 30 minutes (`js/closures.js`), so tabs left open stay

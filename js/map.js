@@ -5,7 +5,7 @@
 // Closures are split into one independently toggleable category per closed uMap layer
 // (see scripts/sync-closures.mjs — categories are derived from the data itself, not
 // hardcoded here, so a new uMap category shows up automatically). Each category gets its
-// own fill/outline/points layers sharing one "fire-closures" source, following the same
+// own fill/outline/lines/points layers sharing one "fire-closures" source, following the same
 // pattern boolder-rails already uses for its optional "contribute" / "circuit7a"
 // overlays: geojson layers inserted just before the style's "areas" layer, so boulder
 // points stay on top. See upstream-patch/ for the ready-to-send patch that ports the
@@ -113,7 +113,12 @@ function storeVisibility(state) {
 }
 
 function layerIdsFor(category) {
-  return [`fire-closures-${category}-fill`, `fire-closures-${category}-outline`, `fire-closures-${category}-points`];
+  return [
+    `fire-closures-${category}-fill`,
+    `fire-closures-${category}-outline`,
+    `fire-closures-${category}-lines`,
+    `fire-closures-${category}-points`,
+  ];
 }
 
 function applyVisibility(map, category, visible) {
@@ -123,11 +128,37 @@ function applyVisibility(map, category, visible) {
   }
 }
 
-// Area (fill/outline) closures have no click popup — only the point markers do, so a
-// zone polygon under a point marker doesn't produce two overlapping popups on click.
+function attachClosurePopup(map, layerId) {
+  map.on("mouseenter", layerId, () => {
+    map.getCanvas().style.cursor = "pointer";
+  });
+  map.on("mouseleave", layerId, () => {
+    map.getCanvas().style.cursor = "";
+  });
+  map.on("click", layerId, (e) => {
+    const props = e.features[0].properties;
+    const label = props.categoryLabel || "Closure";
+    const name = props.name || label;
+    const description = props.description ? `<p>${props.description}</p>` : "";
+
+    new mapboxgl.Popup({ closeButton: false, offset: [0, -4] })
+      .setLngLat(e.lngLat)
+      .setHTML(
+        `<strong>${name}</strong><p>${label}</p>${description}` +
+          `<p><a href="${CLOSURES_SOURCE_URL}" target="_blank" rel="noopener">Source: uMap</a></p>`,
+      )
+      .addTo(map);
+  });
+}
+
+// Area fill/outline has no click popup — only lines and point markers do, so a zone
+// polygon under a point marker (or a closed road running through one) doesn't produce two
+// overlapping popups on click.
 function addCategoryLayers(map, category, beforeId) {
-  const isArea = ["all", ["==", ["get", "category"], category], ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]];
-  const isPoint = ["all", ["==", ["get", "category"], category], ["==", ["geometry-type"], "Point"]];
+  const forCategory = ["==", ["get", "category"], category];
+  const isArea = ["all", forCategory, ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]];
+  const isLine = ["all", forCategory, ["match", ["geometry-type"], ["LineString", "MultiLineString"], true, false]];
+  const isPoint = ["all", forCategory, ["==", ["geometry-type"], "Point"]];
 
   map.addLayer(
     {
@@ -151,6 +182,18 @@ function addCategoryLayers(map, category, beforeId) {
     beforeId,
   );
 
+  const linesLayerId = `fire-closures-${category}-lines`;
+  map.addLayer(
+    {
+      id: linesLayerId,
+      type: "line",
+      source: "fire-closures",
+      filter: isLine,
+      paint: { "line-color": CLOSURE_COLOR, "line-width": 4 },
+    },
+    beforeId,
+  );
+
   const pointsLayerId = `fire-closures-${category}-points`;
   map.addLayer(
     {
@@ -168,26 +211,8 @@ function addCategoryLayers(map, category, beforeId) {
     beforeId,
   );
 
-  map.on("mouseenter", pointsLayerId, () => {
-    map.getCanvas().style.cursor = "pointer";
-  });
-  map.on("mouseleave", pointsLayerId, () => {
-    map.getCanvas().style.cursor = "";
-  });
-  map.on("click", pointsLayerId, (e) => {
-    const props = e.features[0].properties;
-    const label = props.categoryLabel || "Closure";
-    const name = props.name || label;
-    const description = props.description ? `<p>${props.description}</p>` : "";
-
-    new mapboxgl.Popup({ closeButton: false, offset: [0, -4] })
-      .setLngLat(e.lngLat)
-      .setHTML(
-        `<strong>${name}</strong><p>${label}</p>${description}` +
-          `<p><a href="${CLOSURES_SOURCE_URL}" target="_blank" rel="noopener">Source: uMap</a></p>`,
-      )
-      .addTo(map);
-  });
+  attachClosurePopup(map, linesLayerId);
+  attachClosurePopup(map, pointsLayerId);
 }
 
 function getTogglePanel() {
