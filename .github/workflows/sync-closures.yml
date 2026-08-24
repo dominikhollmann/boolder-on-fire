@@ -19,7 +19,7 @@ jobs:
           node-version: 22
 
       - name: Fetch current closure zones
-        run: node scripts/_debug-layers.mjs
+        run: node scripts/sync-closures.mjs
 
       - name: Commit if data changed
         run: |

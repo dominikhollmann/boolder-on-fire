@@ -18,6 +18,14 @@ const FONTAINEBLEAU_BOUNDS = [
 const PROBLEMS_SOURCE = "mapbox://nmondollot.4xsv235p";
 const PROBLEMS_SOURCE_LAYER = "problems-ayes3a";
 const CLOSURE_COLOR = "#e2231a";
+const CLOSURE_LAYER_IDS = ["fire-closures-fill", "fire-closures-outline", "fire-closures-points"];
+const CATEGORY_LABELS = {
+  zone: "Sperrzone",
+  parking: "Parkplatz gesperrt",
+  climbing: "Kletterzone gesperrt",
+  bivouac: "Biwak gesperrt",
+  other: "Sperrung",
+};
 
 const TOKEN_KEY = "boolder_on_fire_mapbox_token";
 
@@ -124,40 +132,60 @@ function addClosuresLayer(map, data) {
     beforeId,
   );
 
-  map.on("mouseenter", "fire-closures-fill", () => {
-    map.getCanvas().style.cursor = "pointer";
-  });
-  map.on("mouseleave", "fire-closures-fill", () => {
-    map.getCanvas().style.cursor = "";
-  });
+  map.addLayer(
+    {
+      id: "fire-closures-points",
+      type: "circle",
+      source: "fire-closures",
+      filter: ["==", ["geometry-type"], "Point"],
+      paint: {
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 4, 16, 8],
+        "circle-color": CLOSURE_COLOR,
+        "circle-stroke-width": 2,
+        "circle-stroke-color": "#fff",
+      },
+    },
+    beforeId,
+  );
 
-  map.on("click", "fire-closures-fill", (e) => {
-    const props = e.features[0].properties;
-    const name = props.name || "Sperrzone";
-    const description = props.description ? `<p>${props.description}</p>` : "";
+  for (const layerId of ["fire-closures-fill", "fire-closures-points"]) {
+    map.on("mouseenter", layerId, () => {
+      map.getCanvas().style.cursor = "pointer";
+    });
+    map.on("mouseleave", layerId, () => {
+      map.getCanvas().style.cursor = "";
+    });
 
-    new mapboxgl.Popup({ closeButton: false, offset: [0, -4] })
-      .setLngLat(e.lngLat)
-      .setHTML(
-        `<strong>${name}</strong>${description}` +
-          `<p><a href="https://umap.openstreetmap.fr/de/map/foret-de-fontainebleau-zones-interdites_1443097" target="_blank" rel="noopener">Quelle: uMap</a></p>`,
-      )
-      .addTo(map);
-  });
+    map.on("click", layerId, (e) => {
+      const props = e.features[0].properties;
+      const category = CATEGORY_LABELS[props.category] ?? CATEGORY_LABELS.other;
+      const name = props.name || category;
+      const description = props.description ? `<p>${props.description}</p>` : "";
+
+      new mapboxgl.Popup({ closeButton: false, offset: [0, -4] })
+        .setLngLat(e.lngLat)
+        .setHTML(
+          `<strong>${name}</strong><p>${category}</p>${description}` +
+            `<p><a href="https://umap.openstreetmap.fr/de/map/foret-de-fontainebleau-zones-interdites_1443097" target="_blank" rel="noopener">Quelle: uMap</a></p>`,
+        )
+        .addTo(map);
+    });
+  }
 }
 
 function initToggleControl(map) {
   const control = document.createElement("div");
   control.className = "toggle-control";
-  control.innerHTML = `<button type="button"><span class="swatch"></span>Sperrzonen</button>`;
+  control.innerHTML = `<button type="button"><span class="swatch"></span>Sperrungen</button>`;
   document.body.appendChild(control);
 
   let visible = true;
   control.querySelector("button").addEventListener("click", () => {
     visible = !visible;
     const visibility = visible ? "visible" : "none";
-    map.setLayoutProperty("fire-closures-fill", "visibility", visibility);
-    map.setLayoutProperty("fire-closures-outline", "visibility", visibility);
+    for (const layerId of CLOSURE_LAYER_IDS) {
+      map.setLayoutProperty(layerId, "visibility", visibility);
+    }
     control.classList.toggle("is-off", !visible);
   });
 }

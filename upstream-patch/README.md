@@ -1,9 +1,9 @@
 # Patch für boolder-rails
 
-Dieser Ordner enthält einen fertigen, getesteten Diff, der das Waldbrand-Sperrzonen-Layer
-direkt in die echte [`boolder-rails`](https://github.com/boolder-org/boolder-rails)-App
-einbaut — als Vorschlag, falls die Boolder-Maintainer das Feature offiziell übernehmen
-wollen.
+Dieser Ordner enthält einen fertigen, getesteten Diff, der das Sperrungen-Layer (Zonen
+**und** Punkt-Marker für gesperrte Kletterzonen/Parkplätze/Biwaks) direkt in die echte
+[`boolder-rails`](https://github.com/boolder-org/boolder-rails)-App einbaut — als
+Vorschlag, falls die Boolder-Maintainer das Feature offiziell übernehmen wollen.
 
 ## Vor einem Pull Request: bitte erst anfragen
 
@@ -20,8 +20,10 @@ ein-/ausschaltbarer GeoJSON-Layer, eingefügt unterhalb des bestehenden `areas`-
 
 - **`mapbox_controller.patch`** — `app/javascript/controllers/mapbox_controller.js`:
   - neue Values `closures` (Boolean) und `closuresSource` (String)
-  - neuer `fire-closures`-Source + zwei Layer (`fire-closures-fill`, `fire-closures-outline`) in `addLayers()`
-  - Klick-Popup (Name + Beschreibung der Zone) in `setupClickEvents()`
+  - neuer `fire-closures`-Source + drei Layer (`fire-closures-fill`, `fire-closures-outline`
+    für Flächen; `fire-closures-points` für Punkt-Marker, gefiltert auf `Point`-Geometrien) in `addLayers()`
+  - Klick-Popup (Name, Kategorie-Label, Beschreibung) in `setupClickEvents()`, für Flächen
+    und Punkte gleichermaßen
 - **`map_index.patch`** — `app/views/map/index.html.erb`:
   - setzt `data-mapbox-closures-value="true"` und `data-mapbox-closures-source-value` auf die
     GeoJSON-Datei aus diesem Repo (`dominikhollmann/boolder-on-fire`, per GitHub Action alle

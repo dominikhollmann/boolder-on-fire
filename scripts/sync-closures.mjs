@@ -16,15 +16,21 @@
 // The map is organized as 5 topic groups, each with an "open" and a "closed" sub-layer
 // (inspected via a one-off debug run against the live map, see git history):
 //   Fonds de carte   -> Périmètre de la forêt domaniale (not a closure, just the forest
-//                        boundary) / Zones interdites de fréquentation
-//   Parkings         -> Parkings accessibles / Parkings fermés
+//                        boundary) / Zones interdites de fréquentation (Polygon)
+//   Parkings         -> Parkings accessibles / Parkings fermés (Point)
 //   Routes départementales -> Route ouverte à la circulation / Route barrée (lines, not
-//                        polygons — excluded by the geometry filter below regardless)
-//   Escalade         -> Zone d'escalade accessible / Zone d'escalade non accessible
-//   Bivouacs         -> Bivouac accessible / Bivouacs fermés
+//                        polygon/point — excluded by the geometry filter below regardless)
+//   Escalade         -> Zone d'escalade accessible / Zone d'escalade non accessible (Point
+//                        — the actually climbing-relevant one, e.g. closed circuit numbers
+//                        like "91.1" or sector names like "Cul de Chien")
+//   Bivouacs         -> Bivouac accessible / Bivouacs fermés (Point)
 // uMap itself colors every "closed" sub-layer Red or OrangeRed and every "open"/reference
 // one Blue/DarkBlue — CLOSED_COLORS below relies on that existing editorial convention
 // instead of matching on layer names, so it keeps working if the French labels change.
+// LAYER_CATEGORIES maps each closed layer's *name* to a short category so js/map.js can
+// style/filter zones vs. point closures (parking/climbing/bivouac) differently; an
+// unrecognized closed layer still comes through (falls back to "other") instead of being
+// silently dropped if uMap adds a new one.
 //
 // If uMap changes this API, DATALAYER_URL_OVERRIDES below is the escape hatch: paste
 // known-good datalayer GeoJSON URLs (found via browser devtools > Network, filtering for
@@ -39,6 +45,12 @@ const MAP_LOCALE = "de";
 const MAP_ID = 1443097;
 const MAP_URL = `${MAP_ORIGIN}/de/map/foret-de-fontainebleau-zones-interdites_${MAP_ID}`;
 const CLOSED_COLORS = new Set(["Red", "OrangeRed"]);
+const LAYER_CATEGORIES = {
+  "Zones interdites de fréquentation": "zone",
+  "Parkings fermés": "parking",
+  "Zone d'escalade non accessible": "climbing",
+  "Bivouacs fermés": "bivouac",
+};
 
 const DATALAYER_URL_OVERRIDES = [];
 
@@ -94,16 +106,20 @@ async function fetchFeatureCollections() {
   );
 }
 
+const RENDERABLE_GEOMETRY_TYPES = new Set(["Polygon", "MultiPolygon", "Point"]);
+
 // Keep only what js/map.js actually renders — drop uMap's internal styling/editor
-// metadata. Individual closure polygons rarely carry their own name/description in this
-// map, so fall back to the enclosing layer's name (e.g. "Zone d'escalade non accessible").
-function normalizeFeature(feature, layerName) {
+// metadata. Individual closure features rarely carry their own name/description in this
+// map's area layer, so fall back to the enclosing layer's name (e.g. "Zone d'escalade non
+// accessible"); point layers (parking, climbing, bivouac) do carry real names.
+function normalizeFeature(feature, layerName, category) {
   const props = feature.properties ?? {};
   return {
     type: "Feature",
     properties: {
       name: props.name ?? props.Name ?? layerName,
       description: props.description ?? props.Description ?? null,
+      category,
     },
     geometry: feature.geometry,
   };
@@ -112,14 +128,15 @@ function normalizeFeature(feature, layerName) {
 async function main() {
   const layers = await fetchFeatureCollections();
 
-  const features = layers.flatMap(({ name, collection }) =>
-    (collection.features ?? [])
-      .filter((f) => f.geometry && (f.geometry.type === "Polygon" || f.geometry.type === "MultiPolygon"))
-      .map((f) => normalizeFeature(f, name)),
-  );
+  const features = layers.flatMap(({ name, collection }) => {
+    const category = LAYER_CATEGORIES[name] ?? "other";
+    return (collection.features ?? [])
+      .filter((f) => f.geometry && RENDERABLE_GEOMETRY_TYPES.has(f.geometry.type))
+      .map((f) => normalizeFeature(f, name, category));
+  });
 
   if (features.length === 0) {
-    throw new Error("Fetched uMap data but found zero polygon features — refusing to overwrite existing data.");
+    throw new Error("Fetched uMap data but found zero renderable (polygon/point) features — refusing to overwrite existing data.");
   }
 
   const output = {
@@ -132,7 +149,7 @@ async function main() {
   };
 
   await writeFile(OUTPUT_PATH, JSON.stringify(output, null, 2) + "\n");
-  console.log(`Wrote ${features.length} closure zone(s) to ${path.relative(process.cwd(), OUTPUT_PATH)}`);
+  console.log(`Wrote ${features.length} closure feature(s) to ${path.relative(process.cwd(), OUTPUT_PATH)}`);
 }
 
 main().catch((err) => {
