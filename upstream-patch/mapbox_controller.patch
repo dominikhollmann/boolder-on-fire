@@ -1,0 +1,84 @@
+diff --git a/app/javascript/controllers/mapbox_controller.js b/app/javascript/controllers/mapbox_controller.js
+index 6e196ed..7d0ccaa 100644
+--- a/app/javascript/controllers/mapbox_controller.js
++++ b/app/javascript/controllers/mapbox_controller.js
+@@ -20,6 +20,8 @@ export default class extends Controller {
+     contributeSource: String,
+     circuit7a: { type: Boolean, default: false },
+     circuit7aSource: String,
++    closures: { type: Boolean, default: false },
++    closuresSource: String,
+   }
+ 
+   connect() {
+@@ -494,6 +496,44 @@ export default class extends Controller {
+       "areas" // layer will be inserted just before this layer
+       );
+     }
++
++    // FIRE CLOSURES LAYER
++    // Wildfire closure zones (Fontainebleau forest, ONF/community-maintained), sourced
++    // from https://github.com/dominikhollmann/boolder-on-fire
++
++    if(this.closuresValue) {
++
++      this.map.addSource('fire-closures', {
++        type: 'geojson',
++        data: this.closuresSourceValue,
++      });
++
++      this.map.addLayer({
++        'id': 'fire-closures-fill',
++        'type': 'fill',
++        'source': 'fire-closures',
++        'paint': {
++          'fill-color': "#e2231a",
++          'fill-opacity': 0.35,
++        },
++      }
++      ,
++      "areas" // layer will be inserted just before this layer
++      );
++
++      this.map.addLayer({
++        'id': 'fire-closures-outline',
++        'type': 'line',
++        'source': 'fire-closures',
++        'paint': {
++          'line-color': "#e2231a",
++          'line-width': 2,
++        },
++      }
++      ,
++      "areas" // layer will be inserted just before this layer
++      );
++    }
+   }
+ 
+   centerMap() {
+@@ -722,6 +762,25 @@ export default class extends Controller {
+         this.flyToBounds([[props.southWestLon, props.southWestLat], [props.northEastLon, props.northEastLat]])
+       }
+     });
++
++    if(this.closuresValue) {
++      this.map.on('mouseenter', 'fire-closures-fill', () => {
++        this.map.getCanvas().style.cursor = 'pointer';
++      });
++      this.map.on('mouseleave', 'fire-closures-fill', () => {
++        this.map.getCanvas().style.cursor = '';
++      });
++
++      this.map.on('click', 'fire-closures-fill', (e) => {
++        let props = e.features[0].properties
++        const html = `<strong>${props.name || "Sperrzone"}</strong>${props.description ? `<p>${props.description}</p>` : ""}`;
++
++        new mapboxgl.Popup({closeButton:false, focusAfterOpen: false})
++        .setLngLat(e.lngLat)
++        .setHTML(html)
++        .addTo(this.map);
++      });
++    }
+   }
+ 
+   flyToBounds(bounds) {

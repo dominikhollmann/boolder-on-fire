@@ -1,0 +1,29 @@
+{
+  "type": "FeatureCollection",
+  "properties": {
+    "lastSynced": null,
+    "source": "https://umap.openstreetmap.fr/de/map/foret-de-fontainebleau-zones-interdites_1443097",
+    "note": "Platzhalterdaten. Wird durch scripts/sync-closures.mjs bzw. die sync-closures GitHub Action mit den echten aktuellen Sperrzonen überschrieben."
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Beispiel-Sperrzone (Platzhalter)",
+        "description": "Dies ist kein echter Waldbrand-Sperrbereich, sondern Beispieldaten, bis der erste automatische Sync gelaufen ist."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [2.6005, 48.4015],
+            [2.6055, 48.4015],
+            [2.6055, 48.3975],
+            [2.6005, 48.3975],
+            [2.6005, 48.4015]
+          ]
+        ]
+      }
+    }
+  ]
+}

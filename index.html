@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>boolder-on-fire — Fontainebleau Sperrzonen</title>
+
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.js"></script>
+
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        font-family:
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+      }
+
+      #map {
+        position: absolute;
+        inset: 0;
+      }
+
+      .banner {
+        position: absolute;
+        z-index: 5;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 12px;
+        max-width: min(560px, calc(100vw - 24px));
+        background: rgba(20, 20, 20, 0.85);
+        color: #fff;
+        font-size: 0.8rem;
+        line-height: 1.35;
+        padding: 8px 14px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      }
+
+      .banner a {
+        color: #ffb4a8;
+      }
+
+      .banner strong {
+        color: #ff8a75;
+      }
+
+      .toggle-control {
+        position: absolute;
+        z-index: 5;
+        top: 12px;
+        right: 12px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        font-size: 0.85rem;
+      }
+
+      .toggle-control button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        background: none;
+        padding: 8px 12px;
+        cursor: pointer;
+        font: inherit;
+        color: #222;
+      }
+
+      .toggle-control .swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+        background: #e2231a;
+        opacity: 0.55;
+        border: 1px solid #b3160d;
+      }
+
+      .toggle-control.is-off .swatch {
+        opacity: 0.15;
+      }
+
+      #token-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        background: rgba(15, 15, 15, 0.92);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+
+      #token-overlay.hidden {
+        display: none;
+      }
+
+      #token-overlay .box {
+        max-width: 420px;
+        line-height: 1.5;
+      }
+
+      #token-overlay input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px 10px;
+        margin: 12px 0;
+        border-radius: 6px;
+        border: 1px solid #555;
+        font-size: 0.9rem;
+      }
+
+      #token-overlay button {
+        padding: 8px 16px;
+        border-radius: 6px;
+        border: none;
+        background: #e2231a;
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+
+      #token-overlay a {
+        color: #ffb4a8;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <div class="banner">
+      <strong>Kein offizieller Boolder-Dienst.</strong>
+      Sperrzonen aus einer Community-uMap-Karte, können veraltet/unvollständig sein — vor
+      Ort auf die amtliche Beschilderung verlassen.
+      Stand: <span id="last-synced">wird geladen…</span> ·
+      <a
+        href="https://umap.openstreetmap.fr/de/map/foret-de-fontainebleau-zones-interdites_1443097"
+        target="_blank"
+        rel="noopener"
+        >Quelle</a
+      >
+    </div>
+
+    <div id="token-overlay">
+      <div class="box">
+        <p>
+          Diese Karte braucht einen öffentlichen
+          <a href="https://account.mapbox.com/access-tokens/" target="_blank" rel="noopener"
+            >Mapbox-Access-Token</a
+          >. Er wird nur lokal in deinem Browser gespeichert (<code>localStorage</code>) und
+          nirgendwo sonst hin geschickt.
+        </p>
+        <input
+          id="token-input"
+          type="text"
+          placeholder="pk.eyJ1Ijoi..."
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button id="token-submit">Karte laden</button>
+      </div>
+    </div>
+
+    <script type="module" src="js/map.js"></script>
+  </body>
+</html>
