@@ -128,6 +128,13 @@ function applyVisibility(map, category, visible) {
   }
 }
 
+// name/categoryLabel/description come from the public, community-editable uMap map (via
+// scripts/sync-closures.mjs) — untrusted text. Popup.setHTML() assigns via innerHTML with
+// no escaping of its own, so escape before interpolating to avoid stored XSS.
+function escapeHtml(value) {
+  return value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
+
 function attachClosurePopup(map, layerId) {
   map.on("mouseenter", layerId, () => {
     map.getCanvas().style.cursor = "pointer";
@@ -137,9 +144,9 @@ function attachClosurePopup(map, layerId) {
   });
   map.on("click", layerId, (e) => {
     const props = e.features[0].properties;
-    const label = props.categoryLabel || "Closure";
-    const name = props.name || label;
-    const description = props.description ? `<p>${props.description}</p>` : "";
+    const label = escapeHtml(props.categoryLabel || "Closure");
+    const name = escapeHtml(props.name || props.categoryLabel || "Closure");
+    const description = props.description ? `<p>${escapeHtml(props.description)}</p>` : "";
 
     new mapboxgl.Popup({ closeButton: false, offset: [0, -4] })
       .setLngLat(e.lngLat)

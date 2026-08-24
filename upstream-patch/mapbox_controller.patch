@@ -1,5 +1,5 @@
 diff --git a/app/javascript/controllers/mapbox_controller.js b/app/javascript/controllers/mapbox_controller.js
-index 6e196ed..167a8a7 100644
+index 6e196ed..f1a8565 100644
 --- a/app/javascript/controllers/mapbox_controller.js
 +++ b/app/javascript/controllers/mapbox_controller.js
 @@ -20,6 +20,8 @@ export default class extends Controller {
@@ -89,7 +89,7 @@ index 6e196ed..167a8a7 100644
    }
  
    centerMap() {
-@@ -722,6 +795,32 @@ export default class extends Controller {
+@@ -722,6 +795,37 @@ export default class extends Controller {
          this.flyToBounds([[props.southWestLon, props.southWestLat], [props.northEastLon, props.northEastLat]])
        }
      });
@@ -109,8 +109,13 @@ index 6e196ed..167a8a7 100644
 +
 +        this.map.on('click', layerId, (e) => {
 +          let props = e.features[0].properties
-+          const category = props.categoryLabel || "Closure"
-+          const html = `<strong>${props.name || category}</strong><p>${category}</p>${props.description ? `<p>${props.description}</p>` : ""}`;
++          // name/categoryLabel/description come from the public, community-editable uMap
++          // map — untrusted text. Popup.setHTML() assigns via innerHTML with no escaping
++          // of its own, so escape before interpolating to avoid stored XSS.
++          const escapeHtml = (value) => value.replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c])
++          const category = escapeHtml(props.categoryLabel || "Closure")
++          const name = escapeHtml(props.name || props.categoryLabel || "Closure")
++          const html = `<strong>${name}</strong><p>${category}</p>${props.description ? `<p>${escapeHtml(props.description)}</p>` : ""}`;
 +
 +          new mapboxgl.Popup({closeButton:false, focusAfterOpen: false})
 +          .setLngLat(e.lngLat)
