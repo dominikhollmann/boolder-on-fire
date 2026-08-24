@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>boolder-on-fire — Fontainebleau Closures</title>
+
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.js"></script>
+
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        font-family:
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+      }
+
+      #map {
+        position: absolute;
+        inset: 0;
+      }
+
+      .banner {
+        position: absolute;
+        z-index: 5;
+        left: 12px;
+        right: 64px;
+        top: 12px;
+        max-width: 520px;
+        box-sizing: border-box;
+        background: rgba(20, 20, 20, 0.85);
+        color: #fff;
+        font-size: 0.8rem;
+        line-height: 1.35;
+        padding: 8px 14px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      }
+
+      /* Leave room for the open closures panel (top-right) so it never overlaps this. */
+      body.panel-open .banner {
+        right: 244px;
+      }
+
+      .banner a {
+        color: #ffb4a8;
+      }
+
+      .banner strong {
+        color: #ff8a75;
+      }
+
+      .closures-toggle-btn {
+        position: absolute;
+        z-index: 6;
+        top: 12px;
+        right: 12px;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+      }
+
+      .closures-toggle-btn svg {
+        width: 20px;
+        height: 20px;
+        stroke: #222;
+      }
+
+      .closures-toggle-btn.is-open {
+        background: #e2231a;
+      }
+
+      .closures-toggle-btn.is-open svg {
+        stroke: #fff;
+      }
+
+      .closures-panel {
+        position: absolute;
+        z-index: 5;
+        top: 60px;
+        right: 12px;
+        max-width: min(220px, calc(100vw - 24px));
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        font-size: 0.85rem;
+        padding: 10px 12px;
+      }
+
+      .closures-panel.hidden {
+        display: none;
+      }
+
+      .closures-panel-title {
+        font-weight: 600;
+        color: #222;
+        margin-bottom: 4px;
+      }
+
+      .category-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0;
+        cursor: pointer;
+        color: #222;
+      }
+
+      .category-row input {
+        margin: 0;
+        flex-shrink: 0;
+      }
+
+      #token-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        background: rgba(15, 15, 15, 0.92);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+
+      #token-overlay.hidden {
+        display: none;
+      }
+
+      #token-overlay .box {
+        max-width: 420px;
+        line-height: 1.5;
+      }
+
+      #token-overlay input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px 10px;
+        margin: 12px 0;
+        border-radius: 6px;
+        border: 1px solid #555;
+        font-size: 0.9rem;
+      }
+
+      #token-overlay button {
+        padding: 8px 16px;
+        border-radius: 6px;
+        border: none;
+        background: #e2231a;
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+
+      #token-overlay a {
+        color: #ffb4a8;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <div class="banner">
+      <strong>Not an official Boolder service.</strong>
+      Closures are sourced from a community uMap map and may be outdated or incomplete —
+      always follow official on-site signage.
+      Last updated: <span id="last-synced">loading…</span> ·
+      <a
+        href="https://umap.openstreetmap.fr/en/map/foret-de-fontainebleau-zones-interdites_1443097"
+        target="_blank"
+        rel="noopener"
+        >Source</a
+      >
+    </div>
+
+    <div id="token-overlay">
+      <div class="box">
+        <p>
+          This map needs a public
+          <a href="https://account.mapbox.com/access-tokens/" target="_blank" rel="noopener"
+            >Mapbox access token</a
+          >. It is stored only in your browser (<code>localStorage</code>) and never sent
+          anywhere else.
+        </p>
+        <input
+          id="token-input"
+          type="text"
+          placeholder="pk.eyJ1Ijoi..."
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button id="token-submit">Load map</button>
+      </div>
+    </div>
+
+    <script type="module" src="js/map.js"></script>
+  </body>
+</html>
