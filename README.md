@@ -1,89 +1,92 @@
 # boolder-on-fire
 
-Sperrungen im Wald von Fontainebleau, dargestellt auf einer [Boolder](https://www.boolder.com)-artigen
-Boulder-Karte.
+Closures in the Fontainebleau forest, shown on a [Boolder](https://www.boolder.com)-style
+boulder map.
 
-Fontainebleau hat in Teilen Zutrittsverbote (u. a. Waldbrand-bedingt). Diese Sperrungen werden
-in einer Community-uMap-Karte gepflegt:
-<https://umap.openstreetmap.fr/de/map/foret-de-fontainebleau-zones-interdites_1443097>
+Parts of Fontainebleau are currently off-limits (including wildfire-related closures).
+These closures are maintained on a community uMap map:
+<https://umap.openstreetmap.fr/en/map/foret-de-fontainebleau-zones-interdites_1443097>
 
-[Boolder](https://github.com/boolder-org/boolder-rails) ist die Referenz-Karte für Boulderproblems
-in Fontainebleau, zeigt diese Sperrungen aber nicht an. Dieses Repo ist ein Prototyp, der sie
-zusätzlich zu den Boolder-Boulderpunkten auf einer Karte anzeigt und die Daten automatisch
-aktuell hält — als Vorlage für eine mögliche echte Erweiterung von Boolder (siehe
-[`upstream-patch/`](upstream-patch/)). Vier Kategorien werden unterschieden (alle rot markiert):
+[Boolder](https://github.com/boolder-org/boolder-rails) is the reference map for boulder
+problems in Fontainebleau but doesn't show these closures. This repo is a prototype that
+overlays them on top of Boolder's boulder points and keeps the data current automatically
+— as a template for a possible real Boolder feature (see
+[`upstream-patch/`](upstream-patch/)). Four categories are distinguished (all marked red):
 
-- **Sperrzone** — allgemeine Zutrittsverbotsflächen (rote Flächen)
-- **Kletterzone gesperrt** — gesperrte Boulder-/Kletterbereiche, z. B. einzelne Circuit-Nummern oder Sektoren
-- **Parkplatz gesperrt**
-- **Biwak gesperrt**
+- **Closed area** — general no-access polygons (red shaded areas)
+- **Climbing zone closed** — closed boulder/climbing areas, e.g. individual circuit numbers or sectors
+- **Parking closed**
+- **Bivouac closed**
 
-> ⚠️ **Kein offizieller Boolder-Dienst.** Dies ist ein unabhängiger Prototyp, nicht mit
-> boolder.com verbunden. Die Sperrzonen-Daten stammen aus einer Community-uMap-Karte und
-> können veraltet oder unvollständig sein. **Verlasst euch vor Ort immer auf die amtliche
-> Beschilderung**, nicht auf diese Karte.
+> ⚠️ **Not an official Boolder service.** This is an independent prototype, not affiliated
+> with boolder.com. Closure data comes from a community uMap map and may be outdated or
+> incomplete. **Always follow official on-site signage**, not this map.
 
-## Was ist hier drin
+## Language
+
+This project is English-only — code, comments, docs, and UI. Keep it that way for any
+future changes.
+
+## What's in here
 
 ```
-index.html                      # Standalone Mapbox-GL-Karte, kein Build-Step
-js/map.js                       # Kartenaufbau: Boolder-Style + Boulderpunkte + closures-Layer (Flächen + Punkt-Marker, rot)
-js/closures.js                  # Lädt data/fire-closures.geojson, pollt periodisch neu
-data/fire-closures.geojson      # Zuletzt synchronisierter Datenstand (von der GitHub Action geschrieben)
-scripts/sync-closures.mjs       # Node-Skript: holt aktuelle Sperrungen von uMap, schreibt data/fire-closures.geojson
-.github/workflows/sync-closures.yml  # Cron-Job, der sync-closures.mjs regelmäßig laufen lässt
-upstream-patch/                 # Fertiger Patch + Anleitung, um das Feature bei boolder-org vorzuschlagen
+index.html                      # Standalone Mapbox GL map, no build step
+js/map.js                       # Map setup: Boolder style + boulder points + closures layer (areas + point markers, red)
+js/closures.js                  # Loads data/fire-closures.geojson, polls periodically
+data/fire-closures.geojson      # Latest synced data (written by the GitHub Action)
+scripts/sync-closures.mjs       # Node script: fetches current closures from uMap, writes data/fire-closures.geojson
+.github/workflows/sync-closures.yml  # Cron job that runs sync-closures.mjs regularly
+upstream-patch/                 # Ready-to-send patch + instructions for proposing the feature to boolder-org
 ```
 
-## Lokal starten
+## Running locally
 
-Kein Build-Step nötig — ein beliebiger statischer Webserver reicht:
+No build step needed — any static web server works:
 
 ```bash
 npx serve .
-# oder: python3 -m http.server 8000
+# or: python3 -m http.server 8000
 ```
 
-Dann `index.html` im Browser öffnen. Beim ersten Laden fragt die Seite nach einem
-**öffentlichen Mapbox-Access-Token** (wird nur lokal im Browser in `localStorage`
-gespeichert, nie an einen eigenen Server geschickt). Ein kostenloses Token gibt es unter
-<https://account.mapbox.com/access-tokens/>.
+Then open `index.html` in a browser. On first load it asks for a **public Mapbox access
+token** (stored only in the browser's `localStorage`, never sent to any server of ours).
+Get a free token at <https://account.mapbox.com/access-tokens/>.
 
-## Datenpipeline
+## Data pipeline
 
-`scripts/sync-closures.mjs` holt die aktuellen Sperrungen (Flächen **und** Punkt-Marker für
-gesperrte Kletterzonen/Parkplätze/Biwaks) von der uMap-Karte, reduziert sie auf die für die
-Anzeige nötigen Felder und schreibt `data/fire-closures.geojson`. Die
-[GitHub Action](.github/workflows/sync-closures.yml) führt dieses Skript alle 6 Stunden
-(und manuell per „Run workflow“) aus und committed Änderungen automatisch. Die statische
-Seite lädt diese Datei beim Öffnen und danach alle 30 Minuten neu (`js/closures.js`), damit
-auch offen gelassene Browser-Tabs aktuell bleiben.
+`scripts/sync-closures.mjs` fetches the current closures (both area polygons **and** point
+markers for closed climbing zones/parkings/bivouacs) from the uMap map, trims them down to
+the fields needed for display, and writes `data/fire-closures.geojson`. The
+[GitHub Action](.github/workflows/sync-closures.yml) runs this script every 6 hours (and
+on manual "Run workflow") and commits changes automatically. The static page loads this
+file on open and re-polls it every 30 minutes (`js/closures.js`), so tabs left open stay
+current.
 
-Manuell ausführen (z. B. lokal testen):
+Run manually (e.g. to test locally):
 
 ```bash
 node scripts/sync-closures.mjs
 ```
 
-**Hinweis zur Datenquelle:** Die uMap-Karte ist eine reine Client-seitige SPA — im
-HTML steht keine der Datalayer-URLs direkt drin. `sync-closures.mjs` nutzt daher die
-echte, aus dem [uMap-Quellcode](https://github.com/umap-project/umap) verifizierte API:
-`GET /{locale}/map/{mapId}/geojson/` liefert die Liste der Datalayer-IDs (UUIDs),
-`GET /{locale}/datalayer/{mapId}/{uuid}/` liefert pro Layer das eigentliche GeoJSON.
-Bricht der Sync trotzdem ab (z. B. weil uMap seine API ändert), steht die Fehlermeldung
-im GitHub-Actions-Log; `DATALAYER_URL_OVERRIDES` in `scripts/sync-closures.mjs` ist der
-Fallback, um bekannte Datalayer-URLs direkt einzutragen.
+**Note on the data source:** the uMap map is a pure client-rendered SPA — none of the
+datalayer URLs appear directly in the HTML. `sync-closures.mjs` therefore uses the real
+API, verified from the [uMap source code](https://github.com/umap-project/umap):
+`GET /{locale}/map/{mapId}/geojson/` returns the list of datalayer IDs (UUIDs),
+`GET /{locale}/datalayer/{mapId}/{uuid}/` returns each layer's actual GeoJSON. If the sync
+still fails (e.g. because uMap changes its API), the error message is in the GitHub
+Actions log; `DATALAYER_URL_OVERRIDES` in `scripts/sync-closures.mjs` is the fallback for
+pasting in known-good datalayer URLs directly.
 
-## Beitrag an Boolder anbieten
+## Offering this to Boolder
 
-[`upstream-patch/`](upstream-patch/) enthält einen fertigen Diff, der das Sperrzonen-Layer
-nach dem gleichen Muster wie die bestehenden `contribute`/`circuit7a`-Layer in
-`boolder-rails` ergänzt. Boolder bittet im eigenen README darum, sich **vor** einem Pull
-Request bei hello@boolder.com zu melden — siehe [`upstream-patch/README.md`](upstream-patch/README.md)
-für Details.
+[`upstream-patch/`](upstream-patch/) contains a ready-made diff that adds the closures
+layer following the same pattern as the existing `contribute`/`circuit7a` layers in
+`boolder-rails`. Boolder's own README asks contributors to get in touch **before** opening
+a pull request, at hello@boolder.com — see
+[`upstream-patch/README.md`](upstream-patch/README.md) for details.
 
-## Lizenz
+## License
 
-MIT, siehe [Boolder-Lizenz](https://github.com/boolder-org/boolder-rails/blob/main/LICENSE).
-Der `mapbox://`-Style und das Boulder-Vector-Tileset werden von Boolder betrieben und hier
-nur zu Demozwecken referenziert (öffentliche IDs aus dem Open-Source-Repo von boolder-rails).
+MIT, see [Boolder's license](https://github.com/boolder-org/boolder-rails/blob/main/LICENSE).
+The `mapbox://` style and boulder vector tileset are operated by Boolder and referenced
+here for demo purposes only (public IDs from boolder-rails' open-source repo).

@@ -41,9 +41,9 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const MAP_ORIGIN = "https://umap.openstreetmap.fr";
-const MAP_LOCALE = "de";
+const MAP_LOCALE = "en";
 const MAP_ID = 1443097;
-const MAP_URL = `${MAP_ORIGIN}/de/map/foret-de-fontainebleau-zones-interdites_${MAP_ID}`;
+const MAP_URL = `${MAP_ORIGIN}/${MAP_LOCALE}/map/foret-de-fontainebleau-zones-interdites_${MAP_ID}`;
 const CLOSED_COLORS = new Set(["Red", "OrangeRed"]);
 const LAYER_CATEGORIES = {
   "Zones interdites de fréquentation": "zone",
