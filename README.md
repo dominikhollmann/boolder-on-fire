@@ -59,14 +59,14 @@ Manuell ausführen (z. B. lokal testen):
 node scripts/sync-closures.mjs
 ```
 
-**Hinweis zur Datenquelle:** Das genaue Export-URL-Schema der uMap-Instanz wurde bei der
-Erstellung dieses Repos nicht live gegen `umap.openstreetmap.fr` verifiziert (Netzwerkzugriff
-war in der Entwicklungsumgebung blockiert). `sync-closures.mjs` versucht mehrere bekannte
-uMap-Zugriffsmuster nacheinander und bricht mit einer klaren Fehlermeldung ab, falls keins
-funktioniert — die GitHub Action schlägt dann sichtbar fehl, statt still veraltete Daten
-stehen zu lassen. Falls beim ersten echten Lauf keine der Strategien greift, siehe die
-Kommentare in `scripts/sync-closures.mjs` für die nächsten Schritte (Netzwerk-Tab der
-uMap-Seite im Browser inspizieren und die tatsächliche Datalayer-URL eintragen).
+**Hinweis zur Datenquelle:** Die uMap-Karte ist eine reine Client-seitige SPA — im
+HTML steht keine der Datalayer-URLs direkt drin. `sync-closures.mjs` nutzt daher die
+echte, aus dem [uMap-Quellcode](https://github.com/umap-project/umap) verifizierte API:
+`GET /{locale}/map/{mapId}/geojson/` liefert die Liste der Datalayer-IDs (UUIDs),
+`GET /{locale}/datalayer/{mapId}/{uuid}/` liefert pro Layer das eigentliche GeoJSON.
+Bricht der Sync trotzdem ab (z. B. weil uMap seine API ändert), steht die Fehlermeldung
+im GitHub-Actions-Log; `DATALAYER_URL_OVERRIDES` in `scripts/sync-closures.mjs` ist der
+Fallback, um bekannte Datalayer-URLs direkt einzutragen.
 
 ## Beitrag an Boolder anbieten
 
