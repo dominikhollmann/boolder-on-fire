@@ -53,40 +53,37 @@
         color: #ff8a75;
       }
 
-      .toggle-control {
+      .closures-panel {
         position: absolute;
         z-index: 5;
         top: 12px;
         right: 12px;
+        max-width: min(220px, calc(100vw - 24px));
         background: #fff;
         border-radius: 8px;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
         font-size: 0.85rem;
+        padding: 10px 12px;
       }
 
-      .toggle-control button {
+      .closures-panel-title {
+        font-weight: 600;
+        color: #222;
+        margin-bottom: 4px;
+      }
+
+      .category-row {
         display: flex;
         align-items: center;
         gap: 8px;
-        border: none;
-        background: none;
-        padding: 8px 12px;
+        padding: 4px 0;
         cursor: pointer;
-        font: inherit;
         color: #222;
       }
 
-      .toggle-control .swatch {
-        width: 12px;
-        height: 12px;
-        border-radius: 3px;
-        background: #e2231a;
-        opacity: 0.55;
-        border: 1px solid #b3160d;
-      }
-
-      .toggle-control.is-off .swatch {
-        opacity: 0.15;
+      .category-row input {
+        margin: 0;
+        flex-shrink: 0;
       }
 
       #token-overlay {

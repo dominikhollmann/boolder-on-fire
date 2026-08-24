@@ -11,12 +11,20 @@ These closures are maintained on a community uMap map:
 problems in Fontainebleau but doesn't show these closures. This repo is a prototype that
 overlays them on top of Boolder's boulder points and keeps the data current automatically
 — as a template for a possible real Boolder feature (see
-[`upstream-patch/`](upstream-patch/)). Four categories are distinguished (all marked red):
+[`upstream-patch/`](upstream-patch/)). Closures are grouped into categories (all marked
+red), each independently toggleable via the panel in the top-right corner — your choices
+are remembered in the browser for next time. Categories are derived directly from
+whatever closed layers currently exist on the uMap map (see
+[Data pipeline](#data-pipeline)), so a new one uMap adds shows up automatically; today
+that's:
 
 - **Closed area** — general no-access polygons (red shaded areas)
 - **Climbing zone closed** — closed boulder/climbing areas, e.g. individual circuit numbers or sectors
 - **Parking closed**
 - **Bivouac closed**
+
+Only point markers (not the area fill) show a click popup — this avoids two overlapping
+popups when a marker sits inside a shaded zone.
 
 > ⚠️ **Not an official Boolder service.** This is an independent prototype, not affiliated
 > with boolder.com. Closure data comes from a community uMap map and may be outdated or
@@ -31,7 +39,7 @@ future changes.
 
 ```
 index.html                      # Standalone Mapbox GL map, no build step
-js/map.js                       # Map setup: Boolder style + boulder points + closures layer (areas + point markers, red)
+js/map.js                       # Map setup: Boolder style + boulder points + per-category closures layers (areas + point markers, red) + toggle panel
 js/closures.js                  # Loads data/fire-closures.geojson, polls periodically
 data/fire-closures.geojson      # Latest synced data (written by the GitHub Action)
 scripts/sync-closures.mjs       # Node script: fetches current closures from uMap, writes data/fire-closures.geojson
@@ -76,6 +84,12 @@ API, verified from the [uMap source code](https://github.com/umap-project/umap):
 still fails (e.g. because uMap changes its API), the error message is in the GitHub
 Actions log; `DATALAYER_URL_OVERRIDES` in `scripts/sync-closures.mjs` is the fallback for
 pasting in known-good datalayer URLs directly.
+
+Each feature is tagged with a `category` (a stable slug derived from its uMap layer's
+name, e.g. `zone-d-escalade-non-accessible`) and a `categoryLabel` (a nicer English label
+for the categories `sync-closures.mjs` recognizes today, or the raw uMap layer name
+otherwise). `js/map.js` uses these to build one toggle per category automatically — no
+category list to keep in sync by hand.
 
 ## Offering this to Boolder
 

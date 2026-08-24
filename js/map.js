@@ -1,12 +1,15 @@
 // Standalone Mapbox GL map: Boolder's public Fontainebleau boulder map (same style +
 // vector tileset as https://github.com/boolder-org/boolder-rails, MIT licensed) plus a
-// new "fire-closures" overlay layer showing the current wildfire closure zones in red.
+// closures overlay showing the current Fontainebleau closures in red.
 //
-// The closures layer follows the same pattern boolder-rails already uses for its
-// optional "contribute" / "circuit7a" overlays (see mapbox_controller.js there): a
-// geojson source added conditionally and inserted just before the style's "areas"
-// layer, so boulder points stay on top. See upstream-patch/ for the ready-to-send
-// patch that ports this layer into the real boolder-rails app.
+// Closures are split into one independently toggleable category per closed uMap layer
+// (see scripts/sync-closures.mjs — categories are derived from the data itself, not
+// hardcoded here, so a new uMap category shows up automatically). Each category gets its
+// own fill/outline/points layers sharing one "fire-closures" source, following the same
+// pattern boolder-rails already uses for its optional "contribute" / "circuit7a"
+// overlays: geojson layers inserted just before the style's "areas" layer, so boulder
+// points stay on top. See upstream-patch/ for the ready-to-send patch that ports the
+// core layer (not this per-category toggle UI) into the real boolder-rails app.
 
 import { watchClosures } from "./closures.js";
 
@@ -18,16 +21,11 @@ const FONTAINEBLEAU_BOUNDS = [
 const PROBLEMS_SOURCE = "mapbox://nmondollot.4xsv235p";
 const PROBLEMS_SOURCE_LAYER = "problems-ayes3a";
 const CLOSURE_COLOR = "#e2231a";
-const CLOSURE_LAYER_IDS = ["fire-closures-fill", "fire-closures-outline", "fire-closures-points"];
-const CATEGORY_LABELS = {
-  zone: "Closed area",
-  parking: "Parking closed",
-  climbing: "Climbing zone closed",
-  bivouac: "Bivouac closed",
-  other: "Closure",
-};
+const CLOSURES_SOURCE_URL =
+  "https://umap.openstreetmap.fr/en/map/foret-de-fontainebleau-zones-interdites_1443097";
 
 const TOKEN_KEY = "boolder_on_fire_mapbox_token";
+const VISIBILITY_KEY = "boolder_on_fire_category_visibility";
 
 function getStoredToken() {
   try {
@@ -96,48 +94,70 @@ function addBoulderLayers(map) {
   });
 }
 
-function addClosuresLayer(map, data) {
-  if (map.getSource("fire-closures")) {
-    map.getSource("fire-closures").setData(data);
-    return;
+// --- Per-category closure layers, toggles, and persisted visibility ---------------
+
+function getStoredVisibility() {
+  try {
+    return JSON.parse(localStorage.getItem(VISIBILITY_KEY)) ?? {};
+  } catch {
+    return {};
   }
+}
 
-  map.addSource("fire-closures", { type: "geojson", data });
+function storeVisibility(state) {
+  try {
+    localStorage.setItem(VISIBILITY_KEY, JSON.stringify(state));
+  } catch {
+    // best-effort only — toggle still works for this page load without persistence
+  }
+}
 
-  const beforeId = map.getLayer("areas") ? "areas" : undefined;
+function layerIdsFor(category) {
+  return [`fire-closures-${category}-fill`, `fire-closures-${category}-outline`, `fire-closures-${category}-points`];
+}
+
+function applyVisibility(map, category, visible) {
+  const visibility = visible ? "visible" : "none";
+  for (const id of layerIdsFor(category)) {
+    map.setLayoutProperty(id, "visibility", visibility);
+  }
+}
+
+// Area (fill/outline) closures have no click popup — only the point markers do, so a
+// zone polygon under a point marker doesn't produce two overlapping popups on click.
+function addCategoryLayers(map, category, beforeId) {
+  const isArea = ["all", ["==", ["get", "category"], category], ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]];
+  const isPoint = ["all", ["==", ["get", "category"], category], ["==", ["geometry-type"], "Point"]];
 
   map.addLayer(
     {
-      id: "fire-closures-fill",
+      id: `fire-closures-${category}-fill`,
       type: "fill",
       source: "fire-closures",
-      paint: {
-        "fill-color": CLOSURE_COLOR,
-        "fill-opacity": 0.35,
-      },
+      filter: isArea,
+      paint: { "fill-color": CLOSURE_COLOR, "fill-opacity": 0.35 },
     },
     beforeId,
   );
 
   map.addLayer(
     {
-      id: "fire-closures-outline",
+      id: `fire-closures-${category}-outline`,
       type: "line",
       source: "fire-closures",
-      paint: {
-        "line-color": CLOSURE_COLOR,
-        "line-width": 2,
-      },
+      filter: isArea,
+      paint: { "line-color": CLOSURE_COLOR, "line-width": 2 },
     },
     beforeId,
   );
 
+  const pointsLayerId = `fire-closures-${category}-points`;
   map.addLayer(
     {
-      id: "fire-closures-points",
+      id: pointsLayerId,
       type: "circle",
       source: "fire-closures",
-      filter: ["==", ["geometry-type"], "Point"],
+      filter: isPoint,
       paint: {
         "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 4, 16, 8],
         "circle-color": CLOSURE_COLOR,
@@ -148,46 +168,91 @@ function addClosuresLayer(map, data) {
     beforeId,
   );
 
-  for (const layerId of ["fire-closures-fill", "fire-closures-points"]) {
-    map.on("mouseenter", layerId, () => {
-      map.getCanvas().style.cursor = "pointer";
-    });
-    map.on("mouseleave", layerId, () => {
-      map.getCanvas().style.cursor = "";
-    });
+  map.on("mouseenter", pointsLayerId, () => {
+    map.getCanvas().style.cursor = "pointer";
+  });
+  map.on("mouseleave", pointsLayerId, () => {
+    map.getCanvas().style.cursor = "";
+  });
+  map.on("click", pointsLayerId, (e) => {
+    const props = e.features[0].properties;
+    const label = props.categoryLabel || "Closure";
+    const name = props.name || label;
+    const description = props.description ? `<p>${props.description}</p>` : "";
 
-    map.on("click", layerId, (e) => {
-      const props = e.features[0].properties;
-      const category = CATEGORY_LABELS[props.category] ?? CATEGORY_LABELS.other;
-      const name = props.name || category;
-      const description = props.description ? `<p>${props.description}</p>` : "";
-
-      new mapboxgl.Popup({ closeButton: false, offset: [0, -4] })
-        .setLngLat(e.lngLat)
-        .setHTML(
-          `<strong>${name}</strong><p>${category}</p>${description}` +
-            `<p><a href="https://umap.openstreetmap.fr/en/map/foret-de-fontainebleau-zones-interdites_1443097" target="_blank" rel="noopener">Source: uMap</a></p>`,
-        )
-        .addTo(map);
-    });
-  }
+    new mapboxgl.Popup({ closeButton: false, offset: [0, -4] })
+      .setLngLat(e.lngLat)
+      .setHTML(
+        `<strong>${name}</strong><p>${label}</p>${description}` +
+          `<p><a href="${CLOSURES_SOURCE_URL}" target="_blank" rel="noopener">Source: uMap</a></p>`,
+      )
+      .addTo(map);
+  });
 }
 
-function initToggleControl(map) {
-  const control = document.createElement("div");
-  control.className = "toggle-control";
-  control.innerHTML = `<button type="button"><span class="swatch"></span>Closures</button>`;
-  document.body.appendChild(control);
+function getTogglePanel() {
+  let panel = document.querySelector(".closures-panel");
+  if (panel) return panel;
 
-  let visible = true;
-  control.querySelector("button").addEventListener("click", () => {
-    visible = !visible;
-    const visibility = visible ? "visible" : "none";
-    for (const layerId of CLOSURE_LAYER_IDS) {
-      map.setLayoutProperty(layerId, "visibility", visibility);
-    }
-    control.classList.toggle("is-off", !visible);
+  panel = document.createElement("div");
+  panel.className = "closures-panel";
+  panel.innerHTML = `<div class="closures-panel-title">Closures</div>`;
+  document.body.appendChild(panel);
+  return panel;
+}
+
+function addToggleRow(panel, category, label, visible, onChange) {
+  const row = document.createElement("label");
+  row.className = "category-row";
+
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.checked = visible;
+  checkbox.addEventListener("change", () => onChange(checkbox.checked));
+
+  row.appendChild(checkbox);
+  row.appendChild(document.createTextNode(label));
+  panel.appendChild(row);
+}
+
+// Lazily creates a category's layers + toggle row the first time it's seen in synced
+// data, so newly-appearing uMap categories (or, on first load, all of today's
+// categories) get their own control without any hardcoded category list.
+function ensureCategory(map, knownCategories, category, label, beforeId) {
+  if (knownCategories.has(category)) return;
+  knownCategories.add(category);
+
+  addCategoryLayers(map, category, beforeId);
+
+  const visible = getStoredVisibility()[category] ?? true;
+  applyVisibility(map, category, visible);
+
+  addToggleRow(getTogglePanel(), category, label, visible, (checked) => {
+    applyVisibility(map, category, checked);
+    const state = getStoredVisibility();
+    state[category] = checked;
+    storeVisibility(state);
   });
+}
+
+function updateClosures(map, knownCategories, data) {
+  if (map.getSource("fire-closures")) {
+    map.getSource("fire-closures").setData(data);
+  } else {
+    map.addSource("fire-closures", { type: "geojson", data });
+  }
+
+  const beforeId = map.getLayer("areas") ? "areas" : undefined;
+
+  const categories = new Map(); // slug -> label
+  for (const feature of data.features) {
+    const { category, categoryLabel } = feature.properties;
+    if (!categories.has(category)) categories.set(category, categoryLabel || category);
+  }
+
+  for (const [category, label] of categories) {
+    ensureCategory(map, knownCategories, category, label, beforeId);
+  }
 }
 
 function formatTimestamp(iso) {
@@ -219,15 +284,10 @@ async function main() {
   map.on("load", () => {
     addBoulderLayers(map);
 
-    let toggleAdded = false;
+    const knownCategories = new Set();
     watchClosures((data, lastSynced) => {
-      addClosuresLayer(map, data);
+      updateClosures(map, knownCategories, data);
       document.getElementById("last-synced").textContent = formatTimestamp(lastSynced);
-
-      if (!toggleAdded) {
-        initToggleControl(map);
-        toggleAdded = true;
-      }
     });
   });
 }

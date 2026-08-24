@@ -27,10 +27,14 @@
 // uMap itself colors every "closed" sub-layer Red or OrangeRed and every "open"/reference
 // one Blue/DarkBlue — CLOSED_COLORS below relies on that existing editorial convention
 // instead of matching on layer names, so it keeps working if the French labels change.
-// LAYER_CATEGORIES maps each closed layer's *name* to a short category so js/map.js can
-// style/filter zones vs. point closures (parking/climbing/bivouac) differently; an
-// unrecognized closed layer still comes through (falls back to "other") instead of being
-// silently dropped if uMap adds a new one.
+//
+// Every closed layer becomes its own category (slugified from its uMap layer name) so
+// js/map.js can render an independent on/off toggle per category — this stays correct
+// automatically if uMap adds, removes, or renames a closed layer, no hardcoded list to
+// maintain. KNOWN_CATEGORY_LABELS below only supplies a nicer English label for the
+// categories we know about today; anything else falls back to the layer's own (French)
+// name rather than a generic "other" bucket, so it still gets its own toggle and isn't
+// silently merged with unrelated closures.
 //
 // If uMap changes this API, DATALAYER_URL_OVERRIDES below is the escape hatch: paste
 // known-good datalayer GeoJSON URLs (found via browser devtools > Network, filtering for
@@ -45,14 +49,32 @@ const MAP_LOCALE = "en";
 const MAP_ID = 1443097;
 const MAP_URL = `${MAP_ORIGIN}/${MAP_LOCALE}/map/foret-de-fontainebleau-zones-interdites_${MAP_ID}`;
 const CLOSED_COLORS = new Set(["Red", "OrangeRed"]);
-const LAYER_CATEGORIES = {
-  "Zones interdites de fréquentation": "zone",
-  "Parkings fermés": "parking",
-  "Zone d'escalade non accessible": "climbing",
-  "Bivouacs fermés": "bivouac",
+const KNOWN_CATEGORY_LABELS = {
+  "Zones interdites de fréquentation": "Closed area",
+  "Parkings fermés": "Parking closed",
+  "Zone d'escalade non accessible": "Climbing zone closed",
+  "Bivouacs fermés": "Bivouac closed",
 };
 
 const DATALAYER_URL_OVERRIDES = [];
+
+function slugify(value) {
+  return (value ?? "other")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // strip accents
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+// Returns { slug, label } for a closed layer's name — slug is the stable machine key used
+// for js/map.js's per-category filters/toggles/localStorage; label is what's shown in the UI.
+function categoryFor(layerName) {
+  return {
+    slug: slugify(layerName),
+    label: KNOWN_CATEGORY_LABELS[layerName] ?? layerName ?? "Closure",
+  };
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT_PATH = path.join(__dirname, "..", "data", "fire-closures.geojson");
@@ -119,7 +141,8 @@ function normalizeFeature(feature, layerName, category) {
     properties: {
       name: props.name ?? props.Name ?? layerName,
       description: props.description ?? props.Description ?? null,
-      category,
+      category: category.slug,
+      categoryLabel: category.label,
     },
     geometry: feature.geometry,
   };
@@ -129,7 +152,7 @@ async function main() {
   const layers = await fetchFeatureCollections();
 
   const features = layers.flatMap(({ name, collection }) => {
-    const category = LAYER_CATEGORIES[name] ?? "other";
+    const category = categoryFor(name);
     return (collection.features ?? [])
       .filter((f) => f.geometry && RENDERABLE_GEOMETRY_TYPES.has(f.geometry.type))
       .map((f) => normalizeFeature(f, name, category));

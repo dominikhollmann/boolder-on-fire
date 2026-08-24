@@ -1,5 +1,5 @@
 diff --git a/app/javascript/controllers/mapbox_controller.js b/app/javascript/controllers/mapbox_controller.js
-index 6e196ed..f114db6 100644
+index 6e196ed..ae2ea7b 100644
 --- a/app/javascript/controllers/mapbox_controller.js
 +++ b/app/javascript/controllers/mapbox_controller.js
 @@ -20,6 +20,8 @@ export default class extends Controller {
@@ -74,40 +74,31 @@ index 6e196ed..f114db6 100644
    }
  
    centerMap() {
-@@ -722,6 +780,37 @@ export default class extends Controller {
+@@ -722,6 +780,28 @@ export default class extends Controller {
          this.flyToBounds([[props.southWestLon, props.southWestLat], [props.northEastLon, props.northEastLat]])
        }
      });
 +
 +    if(this.closuresValue) {
-+      // FIXME: make DRY
-+      const closureCategoryLabels = {
-+        zone: "Closed area",
-+        parking: "Parking closed",
-+        climbing: "Climbing zone closed",
-+        bivouac: "Bivouac closed",
-+        other: "Closure",
-+      }
++      // Only point markers get a click popup, not the area fill — a zone polygon under a
++      // point marker would otherwise produce two overlapping popups on click.
++      this.map.on('mouseenter', 'fire-closures-points', () => {
++        this.map.getCanvas().style.cursor = 'pointer';
++      });
++      this.map.on('mouseleave', 'fire-closures-points', () => {
++        this.map.getCanvas().style.cursor = '';
++      });
 +
-+      for (const layerId of ['fire-closures-fill', 'fire-closures-points']) {
-+        this.map.on('mouseenter', layerId, () => {
-+          this.map.getCanvas().style.cursor = 'pointer';
-+        });
-+        this.map.on('mouseleave', layerId, () => {
-+          this.map.getCanvas().style.cursor = '';
-+        });
++      this.map.on('click', 'fire-closures-points', (e) => {
++        let props = e.features[0].properties
++        const category = props.categoryLabel || "Closure"
++        const html = `<strong>${props.name || category}</strong><p>${category}</p>${props.description ? `<p>${props.description}</p>` : ""}`;
 +
-+        this.map.on('click', layerId, (e) => {
-+          let props = e.features[0].properties
-+          const category = closureCategoryLabels[props.category] || closureCategoryLabels.other
-+          const html = `<strong>${props.name || category}</strong><p>${category}</p>${props.description ? `<p>${props.description}</p>` : ""}`;
-+
-+          new mapboxgl.Popup({closeButton:false, focusAfterOpen: false})
-+          .setLngLat(e.lngLat)
-+          .setHTML(html)
-+          .addTo(this.map);
-+        });
-+      }
++        new mapboxgl.Popup({closeButton:false, focusAfterOpen: false})
++        .setLngLat(e.lngLat)
++        .setHTML(html)
++        .addTo(this.map);
++      });
 +    }
    }
  

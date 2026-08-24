@@ -22,8 +22,9 @@ inserted below the existing `areas` layer.
   - new `closures` (Boolean) and `closuresSource` (String) values
   - new `fire-closures` source + three layers (`fire-closures-fill`, `fire-closures-outline`
     for areas; `fire-closures-points` for point markers, filtered to `Point` geometries) in `addLayers()`
-  - click popup (name, category label, description) in `setupClickEvents()`, for both
-    areas and points
+  - click popup (name, category label, description) in `setupClickEvents()`, for point
+    markers only — not the area fill, so a zone polygon under a point marker doesn't
+    produce two overlapping popups on click
 - **`map_index.patch`** — `app/views/map/index.html.erb`:
   - sets `data-mapbox-closures-value="true"` and `data-mapbox-closures-source-value` to
     the GeoJSON file from this repo (`dominikhollmann/boolder-on-fire`, kept current every
@@ -46,7 +47,10 @@ and verified with `git apply --check`.
 ## What's still missing for a real integration
 
 - Boolder's own data source instead of a third-party repo (see above).
-- A UI toggle for closures in the existing filter/map menu (currently always on).
+- Per-category UI toggles in the existing filter/map menu (this patch always shows every
+  category; the standalone prototype in this repo already has independently toggleable,
+  localStorage-persisted per-category switches — see `js/map.js` — but that's a bespoke
+  panel, not yet adapted to Boolder's own filter UI conventions).
 - Localization of popup text (`boolder-rails` has no `js/i18n` equivalent; could use
   server-side `I18n.t` for zone names if they should be translated).
 - Legal/practical alignment with the uMap data maintainers on whether reusing/redistributing
