@@ -55,4 +55,7 @@ and verified with `git apply --check`.
 - Localization of popup text (`boolder-rails` has no `js/i18n` equivalent; could use
   server-side `I18n.t` for zone names if they should be translated).
 - Legal/practical alignment with the uMap data maintainers on whether reusing/redistributing
-  the data is acceptable.
+  the data is acceptable. The map is owned exclusively by the **Office National des Forêts
+  (ONF) Île-de-France-Est** (confirmed via the map's own API), not an anonymous community
+  editor, but it declares no explicit license — worth raising directly with ONF and/or
+  mentioning to the Boolder maintainers as an open question, not something to assume away.

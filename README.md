@@ -4,7 +4,10 @@ Closures in the Fontainebleau forest, shown on a [Boolder](https://www.boolder.c
 boulder map.
 
 Parts of Fontainebleau are currently off-limits (including wildfire-related closures).
-These closures are maintained on a community uMap map:
+These closures are maintained on a uMap map owned and edited exclusively by the
+**Office National des Forêts (ONF) Île-de-France-Est** (verified via the map's own API —
+`permissions.owner` and `permissions.edit_status`), the French public body that manages
+the Fontainebleau forest — not an open community-editable map:
 <https://umap.openstreetmap.fr/en/map/foret-de-fontainebleau-zones-interdites_1443097>
 
 [Boolder](https://github.com/boolder-org/boolder-rails) is the reference map for boulder
@@ -29,7 +32,7 @@ Only line and point features (not the area fill) show a click popup — this avo
 overlapping popups when a marker or a barred-road line sits inside a shaded zone.
 
 > ⚠️ **Not an official Boolder service.** This is an independent prototype, not affiliated
-> with boolder.com. Closure data comes from a community uMap map and may be outdated or
+> with boolder.com. Closure data comes from ONF's public uMap map and may be outdated or
 > incomplete. **Always follow official on-site signage**, not this map.
 
 ## Language
@@ -111,3 +114,12 @@ a pull request, at hello@boolder.com — see
 MIT, see [Boolder's license](https://github.com/boolder-org/boolder-rails/blob/main/LICENSE).
 The `mapbox://` style and boulder vector tileset are operated by Boolder and referenced
 here for demo purposes only (public IDs from boolder-rails' open-source repo).
+
+**Closure data license: unconfirmed.** The ONF uMap map itself does not declare a license
+(its `licence` property is empty/`null` as of this writing) — there's no explicit grant
+(or denial) to reuse/redistribute the data. The map is public and owned by a French public
+body, and French public-sector data defaults to reuse permission under the *Licence
+Ouverte/Open Licence* unless the map states otherwise — but that's not confirmed for this
+specific map, only inferred. Before this data ships inside anything beyond a personal/demo
+prototype (e.g. a real Boolder feature), get explicit confirmation from ONF
+Île-de-France-Est (the map owner) that redistributing/mirroring it this way is fine.
