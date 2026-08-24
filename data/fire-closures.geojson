@@ -1,7 +1,7 @@
 {
   "type": "FeatureCollection",
   "properties": {
-    "lastSynced": "2026-08-24T14:18:27.209Z",
+    "lastSynced": "2026-08-24T14:31:37.590Z",
     "source": "https://umap.openstreetmap.fr/de/map/foret-de-fontainebleau-zones-interdites_1443097"
   },
   "features": [
@@ -9,7 +9,8 @@
       "type": "Feature",
       "properties": {
         "name": "Zones interdites de fréquentation",
-        "description": null
+        "description": null,
+        "category": "zone"
       },
       "geometry": {
         "type": "Polygon",
@@ -167,7 +168,8 @@
       "type": "Feature",
       "properties": {
         "name": "Zones interdites de fréquentation",
-        "description": null
+        "description": null,
+        "category": "zone"
       },
       "geometry": {
         "type": "Polygon",
@@ -3669,7 +3671,8 @@
       "type": "Feature",
       "properties": {
         "name": "Zones interdites de fréquentation",
-        "description": null
+        "description": null,
+        "category": "zone"
       },
       "geometry": {
         "type": "Polygon",
@@ -3987,7 +3990,8 @@
       "type": "Feature",
       "properties": {
         "name": "Zones interdites de fréquentation",
-        "description": null
+        "description": null,
+        "category": "zone"
       },
       "geometry": {
         "type": "Polygon",
@@ -4865,7 +4869,8 @@
       "type": "Feature",
       "properties": {
         "name": "Zones interdites de fréquentation",
-        "description": null
+        "description": null,
+        "category": "zone"
       },
       "geometry": {
         "type": "Polygon",
@@ -4967,7 +4972,8 @@
       "type": "Feature",
       "properties": {
         "name": "Zones interdites de fréquentation",
-        "description": null
+        "description": null,
+        "category": "zone"
       },
       "geometry": {
         "type": "Polygon",
@@ -6194,6 +6200,681 @@
               48.39371
             ]
           ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "[P]  Croix de Souvray",
+        "description": "Fermeture partielle",
+        "category": "parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.643274,
+          48.372795
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "[P] Bois Rond",
+        "description": "Parking fermé\nNo Parking",
+        "category": "parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.561316,
+          48.388264
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "[P] Canche aux merciers",
+        "description": "Parking fermé\nNO Parking",
+        "category": "parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.553592,
+          48.390116
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "[P] Carrefour d'Achères",
+        "description": "Fermeture partielle",
+        "category": "parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.630689,
+          48.38546
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "[P] Carrefour de la Croix de Franchard",
+        "description": "Fermeture partielle",
+        "category": "parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.639272,
+          48.408437
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "[P] Carrefour des Gorges de Franchard",
+        "description": null,
+        "category": "parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.638414,
+          48.404089
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "[P] Cimetière de Noisy",
+        "description": "Parking fermé\nNO Parking",
+        "category": "parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.510676,
+          48.372198
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "[P] Croix Saint-Jérôme",
+        "description": "Parking fermé\nNO Parking",
+        "category": "parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.51927,
+          48.387979
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "[P] Faisanderie",
+        "description": "Fermeture temporaire",
+        "category": "parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.677907,
+          48.405517
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "[P] Feuillardière",
+        "description": "Parking fermé\nNO Parking",
+        "category": "parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.546248,
+          48.401286
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "[P] Grands Feuillards",
+        "description": null,
+        "category": "parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.623458,
+          48.375352
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "[P] La Mée",
+        "description": "Parking Fermé\nNO Parking",
+        "category": "parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.526641,
+          48.363449
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "[P] Les Cavachelins",
+        "description": "Parking fermé\nNO Parking",
+        "category": "parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.565683,
+          48.381527
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "[P] Noisy-sur-école / Roche aux Sabots",
+        "description": "Parking fermé\nNO Parking",
+        "category": "parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.508456,
+          48.372123
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "[P] Platières d'Apremont",
+        "description": "Parking fermé\nNO Parking",
+        "category": "parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.638232,
+          48.429784
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "[P] Rocher Cailleau",
+        "description": "Parking fermé\nNo Parking",
+        "category": "parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.534677,
+          48.359315
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "[P] Sambine",
+        "description": "Parking fermé\nNO Parking",
+        "category": "parking"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.561448,
+          48.370441
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "91.1",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.519238,
+          48.37749
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "95.2",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.532188,
+          48.385741
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Cul de Chien",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.522875,
+          48.376521
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Gorges du Houx",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.644894,
+          48.406279
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "J.A. Martin",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.534044,
+          48.361603
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "La Grande Montagne",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.538582,
+          48.370819
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Le Diplodocus",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.532499,
+          48.371261
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Les Gros Sablons / Cassis",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.539805,
+          48.384587
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Mont Aigu",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.663841,
+          48.40182
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Roche aux Sabots",
+        "description": "Non accessible",
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.513037,
+          48.374939
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rocher Cailleau",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.538995,
+          48.361093
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rocher de Jean des Vignes",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.521513,
+          48.383818
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rocher de la Cathédrale",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.533867,
+          48.364212
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rocher de la Tortue",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.542734,
+          48.375865
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rocher des Potets",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.526952,
+          48.38302
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rocher du Général",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.528079,
+          48.373442
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rocher du Potala",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.533411,
+          48.368018
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rocher Fin",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.539741,
+          48.378039
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rocher Guichot",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.52368,
+          48.36635
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rocher de la Reine",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.561402,
+          48.392396
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Drei Zinnen",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.557524,
+          48.393126
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Canche aux merciers",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.550341,
+          48.391434
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Télégraphe de Noisy",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.546597,
+          48.395288
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Feuillardière",
+        "description": null,
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.544644,
+          48.396756
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Gorge aux chats",
+        "description": "",
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.519989,
+          48.398822
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Justice de Chambergeot",
+        "description": "",
+        "category": "climbing"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.516105,
+          48.39412
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bivouac de la Faisanderie",
+        "description": "Fermé",
+        "category": "bivouac"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.676716,
+          48.40431
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bivouac de la Solle",
+        "description": "fermé",
+        "category": "bivouac"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.689247,
+          48.430567
         ]
       }
     }
