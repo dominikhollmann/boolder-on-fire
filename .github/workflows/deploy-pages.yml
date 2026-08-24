@@ -3,6 +3,14 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main, claude/boolder-fire-closures-n0ut6v]
+  # A push made by sync-closures.yml's GITHUB_TOKEN does NOT trigger the `push` event
+  # above (GitHub's built-in loop-prevention for workflow-triggered pushes), so without
+  # this the deployed data would silently go stale between manual runs even though the
+  # sync itself keeps committing fresh data every 6h. workflow_run has no such
+  # restriction and fires regardless of which token made the commit.
+  workflow_run:
+    workflows: ["Sync fire closures"]
+    types: [completed]
   workflow_dispatch: {}
 
 permissions:
@@ -16,12 +24,15 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch || github.ref }}
 
       - uses: actions/configure-pages@v5
         with:
