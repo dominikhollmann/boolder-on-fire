@@ -57,6 +57,7 @@ function collectDatalayerIds(nodes, ids = []) {
 
 async function fetchDatalayerIds() {
   const mapSettings = await fetchJson(`${MAP_ORIGIN}/${MAP_LOCALE}/map/${MAP_ID}/geojson/`);
+  console.log("DEBUG datalayers:", JSON.stringify(mapSettings.properties?.datalayers, null, 2));
   const ids = collectDatalayerIds(mapSettings.properties?.datalayers);
   if (ids.length === 0) {
     throw new Error(
