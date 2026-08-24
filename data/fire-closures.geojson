@@ -1,7 +1,7 @@
 {
   "type": "FeatureCollection",
   "properties": {
-    "lastSynced": "2026-08-24T16:04:54.923Z",
+    "lastSynced": "2026-08-24T16:53:07.213Z",
     "source": "https://umap.openstreetmap.fr/en/map/foret-de-fontainebleau-zones-interdites_1443097"
   },
   "features": [
@@ -6478,6 +6478,56 @@
         "coordinates": [
           2.561448,
           48.370441
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Route fermée entre le Carrefour des Cépées et le Parking [P] Platières d'Apremont",
+        "description": null,
+        "category": "route-barree",
+        "categoryLabel": "Road closed"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.652029,
+          48.422088
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Route fermée entre le Carrefour des Cépées et le Parking [P] Platières d'Apremont",
+        "description": null,
+        "category": "route-barree",
+        "categoryLabel": "Road closed"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            2.651846,
+            48.422223
+          ],
+          [
+            2.647394,
+            48.425726
+          ],
+          [
+            2.644122,
+            48.427713
+          ],
+          [
+            2.639036,
+            48.429393
+          ],
+          [
+            2.637641,
+            48.429756
+          ]
         ]
       }
     },
