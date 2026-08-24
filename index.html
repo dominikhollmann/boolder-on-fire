@@ -32,10 +32,11 @@
       .banner {
         position: absolute;
         z-index: 5;
-        left: 50%;
-        transform: translateX(-50%);
+        left: 12px;
+        right: 64px;
         top: 12px;
-        max-width: min(560px, calc(100vw - 24px));
+        max-width: 520px;
+        box-sizing: border-box;
         background: rgba(20, 20, 20, 0.85);
         color: #fff;
         font-size: 0.8rem;
@@ -43,6 +44,11 @@
         padding: 8px 14px;
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      }
+
+      /* Leave room for the open closures panel (top-right) so it never overlaps this. */
+      body.panel-open .banner {
+        right: 244px;
       }
 
       .banner a {
@@ -53,10 +59,42 @@
         color: #ff8a75;
       }
 
+      .closures-toggle-btn {
+        position: absolute;
+        z-index: 6;
+        top: 12px;
+        right: 12px;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+      }
+
+      .closures-toggle-btn svg {
+        width: 20px;
+        height: 20px;
+        stroke: #222;
+      }
+
+      .closures-toggle-btn.is-open {
+        background: #e2231a;
+      }
+
+      .closures-toggle-btn.is-open svg {
+        stroke: #fff;
+      }
+
       .closures-panel {
         position: absolute;
         z-index: 5;
-        top: 12px;
+        top: 60px;
         right: 12px;
         max-width: min(220px, calc(100vw - 24px));
         background: #fff;
@@ -64,6 +102,10 @@
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
         font-size: 0.85rem;
         padding: 10px 12px;
+      }
+
+      .closures-panel.hidden {
+        display: none;
       }
 
       .closures-panel-title {

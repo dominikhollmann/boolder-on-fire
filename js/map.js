@@ -215,14 +215,73 @@ function addCategoryLayers(map, category, beforeId) {
   attachClosurePopup(map, pointsLayerId);
 }
 
+const PANEL_OPEN_KEY = "boolder_on_fire_panel_open";
+
+function getStoredPanelOpen() {
+  try {
+    return localStorage.getItem(PANEL_OPEN_KEY) === "true";
+  } catch {
+    return false; // collapsed by default — keeps the map clear on first load, esp. on phones
+  }
+}
+
+function storePanelOpen(open) {
+  try {
+    localStorage.setItem(PANEL_OPEN_KEY, String(open));
+  } catch {
+    // best-effort only — toggle still works for this page load without persistence
+  }
+}
+
+function setPanelOpen(open) {
+  document.querySelector(".closures-panel")?.classList.toggle("hidden", !open);
+  const button = document.querySelector(".closures-toggle-btn");
+  button?.classList.toggle("is-open", open);
+  button?.setAttribute("aria-expanded", String(open));
+  document.body.classList.toggle("panel-open", open); // shrinks .banner so it doesn't overlap
+  storePanelOpen(open);
+}
+
+// Single filter icon that shows/hides the category panel — keeps the map's top-right
+// corner (where Mapbox's own zoom controls also live) usable on small phone screens.
+function initClosuresToggleButton() {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "closures-toggle-btn";
+  button.setAttribute("aria-label", "Toggle closures filter");
+  button.setAttribute("aria-expanded", "false");
+  button.innerHTML =
+    '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/>' +
+    "</svg>";
+  document.body.appendChild(button);
+
+  button.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = !document.querySelector(".closures-panel")?.classList.contains("hidden");
+    setPanelOpen(!isOpen);
+  });
+
+  document.addEventListener("click", (e) => {
+    const panel = document.querySelector(".closures-panel");
+    if (!panel || panel.classList.contains("hidden")) return;
+    if (panel.contains(e.target) || button.contains(e.target)) return;
+    setPanelOpen(false);
+  });
+}
+
 function getTogglePanel() {
   let panel = document.querySelector(".closures-panel");
   if (panel) return panel;
 
+  initClosuresToggleButton();
+
   panel = document.createElement("div");
-  panel.className = "closures-panel";
+  panel.className = "closures-panel hidden";
   panel.innerHTML = `<div class="closures-panel-title">Closures</div>`;
   document.body.appendChild(panel);
+
+  setPanelOpen(getStoredPanelOpen());
   return panel;
 }
 
@@ -304,7 +363,8 @@ async function main() {
     hash: true,
   });
 
-  map.addControl(new mapboxgl.NavigationControl());
+  // bottom-right: top-right is reserved for the closures filter button/panel
+  map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
 
   map.on("load", () => {
     addBoulderLayers(map);
