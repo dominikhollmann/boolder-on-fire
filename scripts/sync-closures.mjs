@@ -88,12 +88,34 @@ async function discoverViaDownloadEndpoint() {
   return [{ url: `${MAP_ORIGIN}/de/map/${mapId}/download/` }];
 }
 
+// Strategy 3: whatever the page actually references — regex-scan the raw HTML (not just
+// parsed JSON blobs, so this also catches URLs embedded in inline <script> JS, data-*
+// attributes, etc.) for anything that looks like a datalayer/geojson URL. This is the
+// most format-agnostic strategy and doubles as a diagnostic: candidateUrls is attached to
+// the returned refs list so a failure still reports exactly what was found on the page.
+async function discoverViaRawHtmlScan() {
+  const html = await fetchText(MAP_URL);
+  const matches = new Set();
+  const re = /["'](\/[^\s"'<>]*?(?:datalayer[^\s"'<>]*|\.geojson[^\s"'<>]*))["']/gi;
+  let m;
+  while ((m = re.exec(html))) matches.add(m[1]);
+
+  const refs = [...matches].map((url) => ({ url }));
+  refs.candidateUrls = [...matches]; // surfaced in the error message if this strategy fails too
+  return refs;
+}
+
+function describeCandidates(refs) {
+  if (!refs.candidateUrls) return "";
+  return ` (candidate URLs seen on page: ${refs.candidateUrls.join(", ") || "none"})`;
+}
+
 async function resolveFeatureCollections() {
   if (DATALAYER_URL_OVERRIDES.length > 0) {
     return Promise.all(DATALAYER_URL_OVERRIDES.map((url) => fetchJson(url)));
   }
 
-  const strategies = [discoverViaEmbeddedJson, discoverViaDownloadEndpoint];
+  const strategies = [discoverViaEmbeddedJson, discoverViaDownloadEndpoint, discoverViaRawHtmlScan];
   const errors = [];
 
   for (const strategy of strategies) {
@@ -117,9 +139,9 @@ async function resolveFeatureCollections() {
         (c) => c && c.type === "FeatureCollection" && Array.isArray(c.features) && c.features.length > 0,
       );
       if (withFeatures.length > 0) return withFeatures;
-      errors.push(`${strategy.name}: resolved datalayers but none contained features`);
+      errors.push(`${strategy.name}: resolved datalayers but none contained features${describeCandidates(refs)}`);
     } catch (err) {
-      errors.push(`${strategy.name}: ${err.message}`);
+      errors.push(`${strategy.name}: ${err.message}${describeCandidates(refs)}`);
     }
   }
 
