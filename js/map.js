@@ -23,6 +23,8 @@ const PROBLEMS_SOURCE_LAYER = "problems-ayes3a";
 const CLOSURE_COLOR = "#e2231a";
 const CLOSURES_SOURCE_URL =
   "https://umap.openstreetmap.fr/en/map/foret-de-fontainebleau-zones-interdites_1443097";
+const ONF_SOURCE_URL =
+  "https://www.onf.fr/vivre-la-foret/+/2d9a::foret-de-fontainebleau-carte-des-sentiers-et-routes-forestieres-accessibles.html";
 
 const TOKEN_KEY = "boolder_on_fire_mapbox_token";
 const VISIBILITY_KEY = "boolder_on_fire_category_visibility";
@@ -128,9 +130,10 @@ function applyVisibility(map, category, visible) {
   }
 }
 
-// name/categoryLabel/description come from the public, community-editable uMap map (via
-// scripts/sync-closures.mjs) — untrusted text. Popup.setHTML() assigns via innerHTML with
-// no escaping of its own, so escape before interpolating to avoid stored XSS.
+// name/categoryLabel/description come from ONF's public uMap map (via
+// scripts/sync-closures.mjs) — still untrusted third-party text. Popup.setHTML() assigns
+// via innerHTML with no escaping of its own, so escape before interpolating to avoid
+// stored XSS.
 function escapeHtml(value) {
   return value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 }
@@ -152,7 +155,8 @@ function attachClosurePopup(map, layerId) {
       .setLngLat(e.lngLat)
       .setHTML(
         `<strong>${name}</strong><p>${label}</p>${description}` +
-          `<p><a href="${CLOSURES_SOURCE_URL}" target="_blank" rel="noopener">Source: uMap</a></p>`,
+          `<p><a href="${ONF_SOURCE_URL}" target="_blank" rel="noopener">Source: ONF</a> · ` +
+          `<a href="${CLOSURES_SOURCE_URL}" target="_blank" rel="noopener">Live data</a></p>`,
       )
       .addTo(map);
   });

@@ -4,10 +4,15 @@ Closures in the Fontainebleau forest, shown on a [Boolder](https://www.boolder.c
 boulder map.
 
 Parts of Fontainebleau are currently off-limits (including wildfire-related closures).
-These closures are maintained on a uMap map owned and edited exclusively by the
-**Office National des Forêts (ONF) Île-de-France-Est** (verified via the map's own API —
-`permissions.owner` and `permissions.edit_status`), the French public body that manages
-the Fontainebleau forest — not an open community-editable map:
+These closures are official data from the
+**Office National des Forêts (ONF) Île-de-France-Est**, the French public body that
+manages the Fontainebleau forest:
+<https://www.onf.fr/vivre-la-foret/+/2d9a::foret-de-fontainebleau-carte-des-sentiers-et-routes-forestieres-accessibles.html>
+
+ONF publishes the live, up-to-the-minute version of this data as a uMap map, which they
+own and edit exclusively (verified via the map's own API — `permissions.owner` and
+`permissions.edit_status`, not an open community-editable map). This repo's sync pipeline
+polls that uMap map, since it's the only machine-readable form of the data:
 <https://umap.openstreetmap.fr/en/map/foret-de-fontainebleau-zones-interdites_1443097>
 
 [Boolder](https://github.com/boolder-org/boolder-rails) is the reference map for boulder
@@ -32,8 +37,8 @@ Only line and point features (not the area fill) show a click popup — this avo
 overlapping popups when a marker or a barred-road line sits inside a shaded zone.
 
 > ⚠️ **Not an official Boolder service.** This is an independent prototype, not affiliated
-> with boolder.com. Closure data comes from ONF's public uMap map and may be outdated or
-> incomplete. **Always follow official on-site signage**, not this map.
+> with boolder.com or ONF. Closure data comes from ONF (Office National des Forêts) and
+> may be outdated or incomplete. **Always follow official on-site signage**, not this map.
 
 ## Language
 

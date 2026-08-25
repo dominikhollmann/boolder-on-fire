@@ -1,5 +1,5 @@
 diff --git a/app/views/map/index.html.erb b/app/views/map/index.html.erb
-index a0e939f..ad83f64 100644
+index a0e939f..3ae9691 100644
 --- a/app/views/map/index.html.erb
 +++ b/app/views/map/index.html.erb
 @@ -30,6 +30,11 @@ data-mapbox-contribute-value="<%= params[:contribute] ? "true" : "false" %>"
@@ -7,7 +7,7 @@ index a0e939f..ad83f64 100644
  data-mapbox-circuit7a-value="<%= params[:circuit7a] ? "true" : "false" %>"
  
 +<%# TODO: replace with a Boolder-hosted route once this is adopted; for now this points at
-+    the community sync job in https://github.com/dominikhollmann/boolder-on-fire %>
++    the sync job (ONF source data) in https://github.com/dominikhollmann/boolder-on-fire %>
 +data-mapbox-closures-source-value="https://raw.githubusercontent.com/dominikhollmann/boolder-on-fire/main/data/fire-closures.geojson"
 +data-mapbox-closures-value="true"
 +
