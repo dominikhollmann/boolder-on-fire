@@ -20,6 +20,36 @@ const FONTAINEBLEAU_BOUNDS = [
 ];
 const PROBLEMS_SOURCE = "mapbox://nmondollot.4xsv235p";
 const PROBLEMS_SOURCE_LAYER = "problems-ayes3a";
+// Boulders are colored by their circuit's color (a Fontainebleau convention: marked
+// circuits, not raw numeric grade), same mapping boolder-rails' own mapbox_controller.js
+// uses. Problems with no circuit (circuitColor "" or missing) fall back to yellow, same
+// as boolder-rails; anything else unrecognized falls back to gray.
+const DEFAULT_PROBLEM_COLOR = "#878A8D";
+const CIRCUIT_COLOR_EXPRESSION = [
+  "match",
+  ["get", "circuitColor"],
+  ["", "yellow"],
+  "#FFCC02",
+  "purple",
+  "#D783FF",
+  "orange",
+  "#FF9500",
+  "green",
+  "#77C344",
+  "blue",
+  "#017AFF",
+  "skyblue",
+  "#5AC7FA",
+  "salmon",
+  "#FDAF8A",
+  "red",
+  "#FF3B2F",
+  "black",
+  "#000",
+  "white",
+  "#FFFFFF",
+  DEFAULT_PROBLEM_COLOR,
+];
 const CLOSURE_COLOR = "#e2231a";
 const CLOSURES_SOURCE_URL =
   "https://umap.openstreetmap.fr/en/map/foret-de-fontainebleau-zones-interdites_1443097";
@@ -89,7 +119,7 @@ function addBoulderLayers(map) {
     minzoom: 13,
     paint: {
       "circle-radius": ["interpolate", ["linear"], ["zoom"], 13, 2, 18, 4, 22, 8],
-      "circle-color": "#FFCC02",
+      "circle-color": CIRCUIT_COLOR_EXPRESSION,
       "circle-opacity": ["interpolate", ["linear"], ["zoom"], 12.5, 0, 13, 1],
     },
     filter: ["match", ["geometry-type"], ["Point"], true, false],
