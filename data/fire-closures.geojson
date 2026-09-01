@@ -1,7 +1,7 @@
 {
   "type": "FeatureCollection",
   "properties": {
-    "lastSynced": "2026-09-01T11:46:15.443Z",
+    "lastSynced": "2026-09-01T16:44:35.564Z",
     "source": "https://umap.openstreetmap.fr/en/map/foret-de-fontainebleau-zones-interdites_1443097"
   },
   "features": [
@@ -7824,7 +7824,7 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Parking du centre pédagogique de la faisanderie",
+        "name": "[P] Parking du centre pédagogique de la faisanderie",
         "description": "Parking réservé ONF\ndu centre pédagogique de la faisanderie",
         "category": "parkings-fermes",
         "categoryLabel": "Parking closed"
@@ -7832,8 +7832,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          2.677681,
-          48.40551
+          2.677754,
+          48.405464
         ]
       }
     },
@@ -8026,8 +8026,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          2.663841,
-          48.40182
+          2.663455,
+          48.404491
         ]
       }
     },
